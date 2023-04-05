@@ -47,4 +47,9 @@ class BoundsScale {
 
   double get xScale => size.width / (bounds.maxX - bounds.minX);
   double get yScale => size.height / (bounds.maxY - bounds.minY);
+
+  Offset createOffset(LatLng position) => Offset(
+    (position.longitude - bounds.minX) * xScale,
+    size.height - (position.latitude - bounds.minY) * yScale,
+  );
 }

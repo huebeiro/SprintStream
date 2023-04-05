@@ -1,30 +1,52 @@
+
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sprintstream/canvas/sprint_canvas.dart';
 import 'package:sprintstream/canvas/latlng.dart';
 
-class SprintView extends StatelessWidget {
-  final List<LatLng> points = [
-    LatLng(37.4219983, -122.084),
-    LatLng(37.4219983, -122.084),
-    LatLng(37.4279617, -122.085),
-    LatLng(37.4284438, -122.087),
-    LatLng(37.4294338, -122.089),
-    LatLng(37.4294988, -122.090),
-    LatLng(37.4284287, -122.091),
-    LatLng(37.4260409, -122.096),
-    LatLng(37.425665, -122.096),
-    LatLng(37.424853, -122.095),
-    LatLng(37.424853, -122.094),
-    LatLng(37.4260409, -122.093),
-    LatLng(37.4270967, -122.092),
-  ];
+class SprintView extends StatefulWidget {
 
-  final LatLng carPoint = LatLng(37.425665, -122.096);
+  const SprintView({super.key});
 
-  SprintView({super.key});
+  @override
+  State<SprintView> createState() => _SprintViewState();
+}
+
+class _SprintViewState extends State<SprintView> {
+  List<LatLng> points = [];
+
+  final LatLng carPoint = LatLng(-45.87595, -23.23559);
+
+  Future<void> readJson() async {
+    try{
+      final String response = await rootBundle.loadString('assets/routes/sjc_mog.json');
+      log("Response length: ${response.length}");
+      final data = await json.decode(response);
+      List<dynamic> coordinates = data['coordinates'];
+      log("Coordinates length: ${coordinates.length}");
+
+      setState(() {
+        points = coordinates.map((e) =>
+            LatLng(e[0], e[1])
+        ).toList();
+      });
+    } catch (ex) {
+      log("Error parsing JSON: $ex");
+    }
+
+  }
+
+  startView() {
+    readJson();
+  }
 
   @override
   Widget build(BuildContext context) {
+    startView();
+
     return Scaffold(
       body: CustomPaint(
         painter: SprintCanvas(points, carPoint),
